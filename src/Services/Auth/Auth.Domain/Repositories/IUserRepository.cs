@@ -1,4 +1,4 @@
-﻿using Auth.Domain.Entities;
+using Auth.Domain.Entities;
 
 namespace Auth.Domain.Repositories
 {
@@ -10,6 +10,7 @@ namespace Auth.Domain.Repositories
         Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default);
         Task AddAsync(User user, CancellationToken cancellationToken = default);
         Task UpdateAsync(User user, CancellationToken cancellationToken = default);
+        Task AddRefreshTokenAsync(Guid userId, RefreshToken refreshToken, CancellationToken cancellationToken = default);
         Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
         Task<bool> ExistsAsync(string email, CancellationToken cancellationToken = default);
     }

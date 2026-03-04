@@ -1,4 +1,4 @@
-﻿using Auth.Application.Commands;
+using Auth.Application.Commands;
 using Auth.Application.DTOs;
 using Auth.Application.Services;
 using Auth.Domain.Entities;
@@ -40,9 +40,8 @@ namespace Auth.Application.Handlers
             var refreshTokenEntity = new RefreshToken(newRefreshToken, refreshTokenExpiration, request.IpAddress);
 
             oldRefreshToken.Revoke(request.IpAddress, newRefreshToken);
-            user.AddRefreshToken(refreshTokenEntity);
 
-            await _userRepository.UpdateAsync(user, cancellationToken);
+            await _userRepository.AddRefreshTokenAsync(user.Id, refreshTokenEntity, cancellationToken);
 
             var accessToken = _tokenService.GenerateAccessToken(user);
 

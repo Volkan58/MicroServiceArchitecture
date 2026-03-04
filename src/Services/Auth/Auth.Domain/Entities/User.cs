@@ -1,4 +1,4 @@
-﻿namespace Auth.Domain.Entities
+namespace Auth.Domain.Entities
 {
     public class User
     {
@@ -77,11 +77,12 @@
         public void AddRefreshToken(RefreshToken token)
         {
             RefreshTokens.Add(token);
-
-            RemoveOldRefreshTokens();
         }
 
-        private void RemoveOldRefreshTokens()
+        /// <summary>
+        /// Eski pasif token'ları temizler. Ayrı bir job/endpoint'ten çağrılmalı - AddRefreshToken ile birlikte SaveChanges'da concurrency hatası veriyor.
+        /// </summary>
+        internal void RemoveOldRefreshTokens()
         {
             RefreshTokens.RemoveAll(x => !x.IsActive && x.CreatedAt.AddDays(2) <= DateTime.UtcNow);
         }

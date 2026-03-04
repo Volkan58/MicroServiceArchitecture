@@ -1,4 +1,4 @@
-﻿using Auth.Domain.Entities;
+using Auth.Domain.Entities;
 using Auth.Domain.Repositories;
 using Auth.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -50,7 +50,17 @@ namespace Auth.Infrastructure.Repositories
 
         public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)
         {
-            _context.Users.Update(user);
+            if (_context.Entry(user).State == EntityState.Detached)
+            {
+                _context.Users.Update(user);
+            }
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task AddRefreshTokenAsync(Guid userId, RefreshToken refreshToken, CancellationToken cancellationToken = default)
+        {
+            _context.RefreshTokens.Add(refreshToken);
+            _context.Entry(refreshToken).Property("UserId").CurrentValue = userId;
             await _context.SaveChangesAsync(cancellationToken);
         }
 
