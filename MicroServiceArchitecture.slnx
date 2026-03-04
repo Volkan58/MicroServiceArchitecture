@@ -11,4 +11,10 @@
     <Project Path="src/Services/Auth/Auth.Domain/Auth.Domain.csproj" />
     <Project Path="src/Services/Auth/Auth.Infrastructure/Auth.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Services/Product/">
+    <Project Path="src/Services/Product/Product.API/Product.API.csproj" Id="ac452e4f-f663-477c-81e3-223e3437903c" />
+    <Project Path="src/Services/Product/Product.Application/Product.Application.csproj" Id="573da4b3-78b2-4fc4-ae52-bd1c098db91d" />
+    <Project Path="src/Services/Product/Product.Domain/Product.Domain.csproj" Id="2502b315-127f-4f1f-b763-52813d0a7f57" />
+    <Project Path="src/Services/Product/Product.Infrastructure/Product.Infrastructure.csproj" Id="6e1206dc-64be-459c-a1d3-730aca2c2819" />
+  </Folder>
 </Solution>
