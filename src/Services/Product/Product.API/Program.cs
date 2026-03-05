@@ -23,23 +23,22 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(opt =>
 {
-    c.SwaggerDoc("v1", new() { Title = "Product API", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.OpenApiSecurityScheme
+    opt.SwaggerDoc("v1", new() { Title = "Product API", Version = "v1" });
+    opt.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.OpenApiSecurityScheme
     {
-        Description = "JWT Authorization. Value: Bearer {token} veya sadece token",
         Name = "Authorization",
-        In = Microsoft.OpenApi.ParameterLocation.Header,
         Type = Microsoft.OpenApi.SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token. Example: \"Bearer 12345.54321\""
     });
-    c.AddSecurityRequirement(document => new Microsoft.OpenApi.OpenApiSecurityRequirement
+    opt.AddSecurityRequirement(document =>
     {
-        {
-            new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer"),
-            new List<string>()
-        }
+        var schemeRef = new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer");
+        return new Microsoft.OpenApi.OpenApiSecurityRequirement { [schemeRef] = new List<string>() };
     });
 });
 builder.Services.AddDbContext<ProductDbContext>(options =>
@@ -84,7 +83,23 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtIssuer,
         ValidAudience = jwtAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+        RoleClaimType = System.Security.Claims.ClaimTypes.Role,
+        NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier,
+        ClockSkew = TimeSpan.FromMinutes(1)
+    };
+    options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Log.Warning(context.Exception, "JWT authentication failed: {Message}", context.Exception.Message);
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            Log.Warning("JWT challenge: {Error}, {Description}", context.Error, context.ErrorDescription);
+            return Task.CompletedTask;
+        }
     };
 });
 
