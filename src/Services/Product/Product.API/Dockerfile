@@ -5,21 +5,21 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
 WORKDIR /src
 
-COPY ["BuildingBlocks/EventBus/EventBus.csproj", "BuildingBlocks/EventBus/"]
-COPY ["BuildingBlocks/EventBus.RabbitMQ/EventBus.RabbitMQ.csproj", "BuildingBlocks/EventBus.RabbitMQ/"]
-COPY ["Services/Product/Product.API/Product.API.csproj", "Services/Product/Product.API/"]
-COPY ["Services/Product/Product.Infrastructure/Product.Infrastructure.csproj", "Services/Product/Product.Infrastructure/"]
-COPY ["Services/Product/Product.Application/Product.Application.csproj", "Services/Product/Product.Application/"]
-COPY ["Services/Product/Product.Domain/Product.Domain.csproj", "Services/Product/Product.Domain/"]
+COPY ["src/BuildingBlocks/EventBus/EventBus.csproj", "src/BuildingBlocks/EventBus/"]
+COPY ["src/BuildingBlocks/EventBus.RabbitMQ/EventBus.RabbitMQ.csproj", "src/BuildingBlocks/EventBus.RabbitMQ/"]
+COPY ["src/Services/Product/Product.API/Product.API.csproj", "src/Services/Product/Product.API/"]
+COPY ["src/Services/Product/Product.Infrastructure/Product.Infrastructure.csproj", "src/Services/Product/Product.Infrastructure/"]
+COPY ["src/Services/Product/Product.Application/Product.Application.csproj", "src/Services/Product/Product.Application/"]
+COPY ["src/Services/Product/Product.Domain/Product.Domain.csproj", "src/Services/Product/Product.Domain/"]
 
-RUN dotnet restore "Services/Product/Product.API/Product.API.csproj"
+RUN dotnet restore "src/Services/Product/Product.API/Product.API.csproj"
 
-COPY . .
+COPY src/ src/
 
-RUN dotnet build "Services/Product/Product.API/Product.API.csproj" -c Release -o /app/build
+RUN dotnet build "src/Services/Product/Product.API/Product.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Services/Product/Product.API/Product.API.csproj" -c Release -o /app/publish
+RUN dotnet publish "src/Services/Product/Product.API/Product.API.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app

@@ -4,12 +4,21 @@
     <Project Path="src/BuildingBlocks/EventBus.RabbitMQ/EventBus.RabbitMQ.csproj" />
     <Project Path="src/BuildingBlocks/EventBus/EventBus.csproj" />
   </Folder>
+  <Folder Name="/src/Gateway/">
+    <Project Path="src/Gateway/ApiGateway/ApiGateway.csproj" Id="ab38efe5-c36b-4131-9c68-ed1ef0feed7d" />
+  </Folder>
   <Folder Name="/src/Services/" />
   <Folder Name="/src/Services/Auth/">
     <Project Path="src/Services/Auth/Auth.API/Auth.API.csproj" />
     <Project Path="src/Services/Auth/Auth.Application/Auth.Application.csproj" />
     <Project Path="src/Services/Auth/Auth.Domain/Auth.Domain.csproj" />
     <Project Path="src/Services/Auth/Auth.Infrastructure/Auth.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Log/">
+    <Project Path="src/Services/Log/Log.API/Log.API.csproj" Id="406b1bd8-7f21-45c7-948e-8db50f082587" />
+    <Project Path="src/Services/Log/Log.Application/Log.Application.csproj" Id="2e0137fa-774d-4bc5-9134-634b2e2fb36c" />
+    <Project Path="src/Services/Log/Log.Domain/Log.Domain.csproj" Id="7cea9629-b71f-44fb-a08a-3b45c3bb2d88" />
+    <Project Path="src/Services/Log/Log.Infrastructure/Log.Infrastructure.csproj" Id="5294a8cd-9f33-40a6-9d9f-8c2f7b4a98e1" />
   </Folder>
   <Folder Name="/src/Services/Product/">
     <Project Path="src/Services/Product/Product.API/Product.API.csproj" Id="ac452e4f-f663-477c-81e3-223e3437903c" />

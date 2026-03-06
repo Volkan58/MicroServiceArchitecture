@@ -3,80 +3,61 @@ using Auth.Domain.Repositories;
 using Auth.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Auth.Infrastructure.Repositories
+namespace Auth.Infrastructure.Repositories;
+
+
+public class UserRepository : IUserRepository
 {
-    public class UserRepository : IUserRepository
+    private readonly AuthDbContext _context;
+
+    public UserRepository(AuthDbContext context)
     {
-        private readonly AuthDbContext _context;
+        _context = context;
+    }
 
-        public UserRepository(AuthDbContext context)
-        {
-            _context = context;
-        }
+    public async Task<ApplicationUser?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Users
+            .Include(u => u.RefreshTokens)
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+    }
 
-        public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        {
-            return await _context.Users
-                .Include(u => u.RefreshTokens)
-                .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
-        }
+    public async Task<ApplicationUser?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await _context.Users
+            .Include(u => u.RefreshTokens)
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+    }
 
-        public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
-        {
-            return await _context.Users
-                .Include(u => u.RefreshTokens)
-                .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
-        }
+    public async Task<ApplicationUser?> GetByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+    {
+        var tokenEntity = await _context.RefreshTokens
+            .FirstOrDefaultAsync(rt => rt.Token == refreshToken, cancellationToken);
 
-        public async Task<User?> GetByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
-        {
-            return await _context.Users
-                .Include(u => u.RefreshTokens)
-                .FirstOrDefaultAsync(u => u.RefreshTokens.Any(rt => rt.Token == refreshToken), cancellationToken);
-        }
+        if (tokenEntity == null) return null;
 
-        public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default)
-        {
-            return await _context.Users
-                .Include(u => u.RefreshTokens)
-                .ToListAsync(cancellationToken);
-        }
+        var userId = _context.Entry(tokenEntity).Property<Guid>("UserId").CurrentValue;
+        return await GetByIdAsync(userId, cancellationToken);
+    }
 
-        public async Task AddAsync(User user, CancellationToken cancellationToken = default)
-        {
-            await _context.Users.AddAsync(user, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-        }
+    public async Task AddRefreshTokenAsync(Guid userId, RefreshToken refreshToken, CancellationToken cancellationToken = default)
+    {
+        _context.RefreshTokens.Add(refreshToken);
+        _context.Entry(refreshToken).Property("UserId").CurrentValue = userId;
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 
-        public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(ApplicationUser user, CancellationToken cancellationToken = default)
+    {
+        if (_context.Entry(user).State == EntityState.Detached)
         {
-            if (_context.Entry(user).State == EntityState.Detached)
-            {
-                _context.Users.Update(user);
-            }
-            await _context.SaveChangesAsync(cancellationToken);
+            _context.Users.Update(user);
         }
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 
-        public async Task AddRefreshTokenAsync(Guid userId, RefreshToken refreshToken, CancellationToken cancellationToken = default)
-        {
-            _context.RefreshTokens.Add(refreshToken);
-            _context.Entry(refreshToken).Property("UserId").CurrentValue = userId;
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-
-        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
-        {
-            var user = await GetByIdAsync(id, cancellationToken);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync(cancellationToken);
-            }
-        }
-
-        public async Task<bool> ExistsAsync(string email, CancellationToken cancellationToken = default)
-        {
-            return await _context.Users.AnyAsync(u => u.Email == email, cancellationToken);
-        }
+    public async Task<bool> ExistsAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await _context.Users.AnyAsync(u => u.Email == email!, cancellationToken);
     }
 }
