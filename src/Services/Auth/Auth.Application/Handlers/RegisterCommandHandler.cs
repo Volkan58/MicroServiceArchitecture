@@ -32,11 +32,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthRespo
             throw new InvalidOperationException("User with this email already exists");
         }
 
-        var user = new ApplicationUser(request.Email, request.Email)
-        {
-            FirstName = request.FirstName,
-            LastName = request.LastName
-        };
+        var user = new ApplicationUser(request.Email, request.Email, request.FirstName, request.LastName);
 
         var result = await _userManager.CreateAsync(user, request.Password);
 
