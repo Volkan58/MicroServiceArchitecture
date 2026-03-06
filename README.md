@@ -74,6 +74,10 @@ Tüm API'ler **v1** ile versiyonlanmıştır. İleride breaking change yapıldı
 |----------|----------------|---------|
 | v1       | /api/v1/*      | Aktif   |
 
+## Kod Açıklamaları ve Design Patterns
+
+Projede kullanılan tasarım desenleri ve karar gerekçeleri için: [Design Patterns Dokümantasyonu](docs/DESIGN_PATTERNS.md)
+
 ## Proje Yapısı
 
 ```
