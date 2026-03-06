@@ -149,6 +149,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
       ASPNETCORE_URLS: http://+:8080
+      Jwt__Secret: "u8Kf7wLQ2Z3mXb9tR6pYvH1nJ5qD4sW8xC2eF0aGkL7mN9pQ3rT6uV1wX2yZ4bH8jK5lM0nP2qR7sT9uV3xY6zA1bC4dE8f"
+      Jwt__Issuer: AuthService
+      Jwt__Audience: MicroserviceApp
       ReverseProxy__Clusters__auth__Destinations__auth1__Address: "http://auth-api:8080"
       ReverseProxy__Clusters__products__Destinations__products1__Address: "http://product-api:8080"
       ReverseProxy__Clusters__logs__Destinations__logs1__Address: "http://log-api:8080"

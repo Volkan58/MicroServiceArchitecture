@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Text;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +18,28 @@ builder.Host.UseSerilog();
 
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+var jwtSecret = builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret not configured");
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "AuthService";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "MicroserviceApp";
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -67,9 +92,31 @@ app.UseSerilogRequestLogging();
 
 app.UseCors("AllowAll");
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseRateLimiter();
 
-
+// API Gateway üzerinden merkezi kimlik doğrulama: /api/products ve /api/logs JWT gerektirir, /api/auth açık kalır
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value ?? "";
+    if (path.StartsWith("/api/auth", StringComparison.OrdinalIgnoreCase))
+    {
+        await next();
+        return;
+    }
+    if (path.StartsWith("/api/products", StringComparison.OrdinalIgnoreCase) || path.StartsWith("/api/logs", StringComparison.OrdinalIgnoreCase))
+    {
+        if (context.User.Identity?.IsAuthenticated != true)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsJsonAsync(new { error = "Unauthorized", message = "Valid JWT token required" });
+            return;
+        }
+    }
+    await next();
+});
 
 app.MapReverseProxy();
 
