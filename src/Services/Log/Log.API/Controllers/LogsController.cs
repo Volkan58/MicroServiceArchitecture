@@ -1,4 +1,5 @@
-﻿using Log.Application.Commands;
+using Asp.Versioning;
+using Log.Application.Commands;
 using Log.Application.DTOs;
 using Log.Application.Queries;
 using MediatR;
@@ -6,8 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Log.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class LogsController : ControllerBase
     {
         private readonly IMediator _mediator;
