@@ -97,16 +97,16 @@ app.UseAuthorization();
 
 app.UseRateLimiter();
 
-// API Gateway üzerinden merkezi kimlik doğrulama: /api/products ve /api/logs JWT gerektirir, /api/auth açık kalır
+
 app.Use(async (context, next) =>
 {
     var path = context.Request.Path.Value ?? "";
-    if (path.StartsWith("/api/auth", StringComparison.OrdinalIgnoreCase))
+    if (path.StartsWith("/api/v1/auth", StringComparison.OrdinalIgnoreCase))
     {
         await next();
         return;
     }
-    if (path.StartsWith("/api/products", StringComparison.OrdinalIgnoreCase) || path.StartsWith("/api/logs", StringComparison.OrdinalIgnoreCase))
+    if (path.StartsWith("/api/v1/products", StringComparison.OrdinalIgnoreCase) || path.StartsWith("/api/v1/logs", StringComparison.OrdinalIgnoreCase))
     {
         if (context.User.Identity?.IsAuthenticated != true)
         {

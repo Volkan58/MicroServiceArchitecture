@@ -38,11 +38,11 @@ docker-compose up -d --build
 
 ## API Gateway Routing
 
-Gateway üzerinden erişim örnekleri:
+API versiyonlama (v1) kullanılmaktadır. Gateway üzerinden erişim örnekleri:
 
-- Auth: `http://localhost:5000/api/auth/*`
-- Product: `http://localhost:5000/api/products/*`
-- Log: `http://localhost:5000/api/logs/*`
+- Auth: `http://localhost:5000/api/v1/auth/*`
+- Product: `http://localhost:5000/api/v1/products/*`
+- Log: `http://localhost:5000/api/v1/logs/*`
 
 ## Durdurma ve Temizlik
 
@@ -65,6 +65,14 @@ docker system prune -a -f --volumes
    ```
 2. Her API’yi Visual Studio veya `dotnet run` ile ayrı ayrı başlatın.
 3. `appsettings.json` içinde connection string’leri localhost’a göre ayarlayın.
+
+## API Versiyonlama
+
+Tüm API'ler **v1** ile versiyonlanmıştır. İleride breaking change yapıldığında v2 eklenebilir, eski client'lar v1 ile çalışmaya devam eder.
+
+| Versiyon | Base Path      | Durum   |
+|----------|----------------|---------|
+| v1       | /api/v1/*      | Aktif   |
 
 ## Proje Yapısı
 
